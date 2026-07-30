@@ -17,3 +17,10 @@ class BasePage:
             return True
         except:
             return False
+
+    def get_current_url(self):
+        return self.driver.current_url
+
+    def get_text(self, locator):
+        element = self.wait.until(EC.visibility_of_element_located(locator))
+        return element.text

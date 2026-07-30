@@ -1,34 +1,23 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
+from locators.main_page_locators import MainPageLocators
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class MainPage(BasePage):
-    # Локаторы через href (самые надёжные)
-    CONSTRUCTOR_BUTTON = (By.XPATH, "//a[@href='/']")
-    ORDER_FEED_BUTTON = (By.XPATH, "//a[@href='/feed']")
-    
-    INGREDIENT = (By.XPATH, "//*[contains(@class, 'BurgerIngredient_ingredient__')]")
-    INGREDIENT_DETAILS = (By.XPATH, "//*[contains(@class, 'Modal_modal__')]")
-    CLOSE_BUTTON = (By.XPATH, "//button[contains(@class, 'Modal_modal__close__')]")
-
     def click_constructor(self):
-        self.click_element(self.CONSTRUCTOR_BUTTON)
+        self.click_element(MainPageLocators.CONSTRUCTOR_BUTTON)
 
     def click_order_feed(self):
-        self.click_element(self.ORDER_FEED_BUTTON)
+        self.click_element(MainPageLocators.ORDER_FEED_BUTTON)
 
     def click_ingredient(self):
-        # Ждём, пока ингредиенты загрузятся
-        self.wait.until(EC.presence_of_element_located(self.INGREDIENT))
-        self.click_element(self.INGREDIENT)
+        self.click_element(MainPageLocators.INGREDIENT)
 
     def is_modal_visible(self):
-        try:
-            self.wait.until(EC.visibility_of_element_located(self.INGREDIENT_DETAILS))
-            return True
-        except:
-            return False
+        return self.is_element_visible(MainPageLocators.INGREDIENT_DETAILS)
 
     def close_modal(self):
-        self.click_element(self.CLOSE_BUTTON)
+        self.click_element(MainPageLocators.CLOSE_BUTTON)
+
+    def wait_modal_invisible(self):
+        self.wait.until(EC.invisibility_of_element_located(MainPageLocators.INGREDIENT_DETAILS))

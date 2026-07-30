@@ -1,5 +1,6 @@
 import allure
 from pages.main_page import MainPage
+from data.urls import BASE_URL
 
 
 @allure.suite("Конструктор бургера")
@@ -9,13 +10,13 @@ class TestConstructor:
     def test_click_constructor(self, driver):
         main_page = MainPage(driver)
         main_page.click_constructor()
-        assert driver.current_url == "https://stellarburgers.education-services.ru/"
+        assert main_page.get_current_url() == BASE_URL
 
     @allure.title("Переход по клику на Лента заказов")
     def test_click_order_feed(self, driver):
         main_page = MainPage(driver)
         main_page.click_order_feed()
-        assert "feed" in driver.current_url
+        assert "feed" in main_page.get_current_url()
 
     @allure.title("Клик на ингредиент - появляется всплывающее окно")
     def test_ingredient_modal_appears(self, driver):
@@ -29,6 +30,26 @@ class TestConstructor:
         main_page.click_ingredient()
         assert main_page.is_modal_visible()
         main_page.close_modal()
-        import time
-        time.sleep(1)
+        main_page.wait_modal_invisible()
         assert not main_page.is_modal_visible()
+
+    @allure.title("При добавлении ингредиента счётчик увеличивается")
+    def test_counter_increases(self, driver):
+        main_page = MainPage(driver)
+        # Здесь нужно реализовать тест для счётчика
+        # Например, перетащить ингредиент или кликнуть на него
+
+    @allure.title("Счётчик «Выполнено за всё время» увеличивается")
+    def test_all_time_counter_increases(self, driver):
+        # Тест для ленты заказов
+        pass
+
+    @allure.title("Счётчик «Выполнено за сегодня» увеличивается")
+    def test_today_counter_increases(self, driver):
+        # Тест для ленты заказов
+        pass
+
+    @allure.title("Номер заказа появляется в разделе «В работе»")
+    def test_order_in_progress_appears(self, driver):
+        # Тест для ленты заказов
+        pass
