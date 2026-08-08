@@ -1,6 +1,7 @@
 import allure
 from pages.main_page import MainPage
 from data.urls import BASE_URL
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 @allure.suite("Конструктор бургера")
@@ -36,7 +37,17 @@ class TestConstructor:
     @allure.title("При добавлении ингредиента счётчик увеличивается")
     def test_counter_increases(self, driver):
         main_page = MainPage(driver)
+        # Получаем значение счётчика ДО добавления
         counter_before = main_page.get_counter_value()
-        main_page.add_ingredient_to_order()
+        
+        # Добавляем булку (а не соус)
+        main_page.add_filling_to_order()
+        
+        # Ждём, пока счётчик увеличится
+        WebDriverWait(driver, 20).until(
+            lambda d: main_page.get_counter_value() > counter_before
+        )
+        
+        # Проверяем, что счётчик увеличился
         counter_after = main_page.get_counter_value()
         assert counter_after > counter_before
