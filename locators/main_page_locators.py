@@ -20,14 +20,13 @@ class MainPageLocators:
     CROSS_BUTTON = (By.XPATH, '//button[contains(@class,"close")]')
     
     # ====== СЧЁТЧИК ======
-    INGREDIENT_COUNTER = (By.XPATH, "//p[contains(@class, 'counter_counter__num__')]")
-    COUNTER = (By.XPATH, "//p[contains(@class, 'counter_counter__num__')]")
+    COUNTER = (By.XPATH, "//p[text()='Флюоресцентная булка R2-D3']/ancestor::a//p[contains(@class, 'counter_counter__num__')]")
 
     # ====== КОРЗИНА / ЗАКАЗ ======
     ORDER_BASKET = (By.XPATH, "//div[contains(@class, 'BurgerConstructor_basket__container__')]")
     CREATE_ORDER_BUTTON = (By.XPATH, '//button[text()="Оформить заказ"]')
     ORDER_IDENTIFICATE = (By.XPATH, '//p[text()="идентификатор заказа"]')
-    ORDER_ID = (By.CLASS_NAME, "Modal_modal__title_shadow__3ikwq")
+    ORDER_ID = (By.XPATH, "//*[contains(@class, 'Modal_modal__')]//*[contains(@class, 'text_type_digits-large')]")
     LOADING_CHECK_BOX = (By.XPATH, ".//img[@alt='tick animation']")
     ORDER_STATUS_TEXT = (By.XPATH, '//p[text()="Ваш заказ начали готовить"]')
     CLOSE_MODAL_ORDER = (By.XPATH, "//button[contains(@class, 'Modal_modal__close')][1]")

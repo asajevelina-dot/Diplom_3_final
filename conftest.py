@@ -6,15 +6,15 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
-import allure
 from pages.main_page import MainPage
+from data.urls import BASE_URL  # ✅ Импортируем BASE_URL
 
 
 def pytest_addoption(parser):
     parser.addoption("--browser", action="store", default="chrome", help="Browser: chrome or firefox")
 
 
-@pytest.fixture(params=["chrome"])  # ← ТОЛЬКО CHROME (Firefox отключён)
+@pytest.fixture(params=["chrome"])
 def driver(request):
     browser = request.param
     
@@ -32,7 +32,7 @@ def driver(request):
     else:
         raise ValueError(f"Unsupported browser: {browser}")
     
-    driver.get("https://stellarburgers.education-services.ru/")
+    driver.get(BASE_URL)  # ✅ Используем константу
     yield driver
     driver.quit()
 

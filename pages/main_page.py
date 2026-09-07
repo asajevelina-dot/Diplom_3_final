@@ -1,7 +1,6 @@
 from pages.base_page import BasePage
 from locators.main_page_locators import MainPageLocators, AuthLoginLocators
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 import time
@@ -9,6 +8,9 @@ import re
 
 
 class MainPage(BasePage):
+    
+    # ====== НАВИГАЦИЯ ======
+    
     def click_constructor(self):
         self.click_element(MainPageLocators.CONSTRUCTOR_BUTTON)
 
@@ -18,6 +20,11 @@ class MainPage(BasePage):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(0.5)
 
+    def click_profile(self):
+        self.click_element(MainPageLocators.PROFILE_BUTTON)
+
+    # ====== ИНГРЕДИЕНТЫ ======
+    
     def click_ingredient(self):
         self.click_element(MainPageLocators.INGREDIENT)
 
@@ -30,7 +37,8 @@ class MainPage(BasePage):
     def wait_modal_invisible(self):
         self.wait.until(EC.invisibility_of_element_located(MainPageLocators.INGREDIENT_DETAILS_POPUP))
 
-    # ====== ПЕРЕТАСКИВАНИЕ (ActionChains — РАБОТАЕТ В CHROME) ======
+    # ====== ПЕРЕТАСКИВАНИЕ ======
+    
     def drag_and_drop_on_element(self, draggable_locator, droppable_locator):
         draggable = self.wait.until(EC.presence_of_element_located(draggable_locator))
         droppable = self.wait.until(EC.presence_of_element_located(droppable_locator))
@@ -50,13 +58,13 @@ class MainPage(BasePage):
             MainPageLocators.ORDER_BASKET
         )
 
+    # ====== СЧЕТЧИК ======
+    
     def get_counter_value(self):
         """Возвращает значение счётчика для булки"""
         try:
             counter = self.wait.until(
-                EC.visibility_of_element_located(
-                    (By.XPATH, "//p[text()='Флюоресцентная булка R2-D3']/ancestor::a//p[contains(@class, 'counter_counter__num__')]")
-                )
+                EC.visibility_of_element_located(MainPageLocators.COUNTER)  # ✅ Используем локатор
             )
             text = counter.text.strip()
             try:
@@ -67,6 +75,14 @@ class MainPage(BasePage):
         except Exception:
             return 0
 
+    def wait_counter_increases(self, initial_value):
+        """Ожидает увеличения счетчика"""
+        self.wait.until(
+            lambda d: self.get_counter_value() > initial_value
+        )
+
+    # ====== АВТОРИЗАЦИЯ ======
+    
     def login(self, email, password):
         login_button = self.wait.until(EC.element_to_be_clickable(MainPageLocators.LOGIN_PROFILE_BUTTON))
         login_button.click()
@@ -82,27 +98,38 @@ class MainPage(BasePage):
 
         self.wait.until(EC.visibility_of_element_located(MainPageLocators.PROFILE_BUTTON))
 
-    def create_order(self):
-        """Создаёт заказ (перетаскиваем булку и соус)"""
-        # 1. Добавляем булку
-        self.add_filling_to_order()
-
-        # 2. Добавляем соус
-        self.add_ingredient_to_order()
-
-        # 3. Оформляем заказ
-        order_button = self.wait.until(EC.element_to_be_clickable(MainPageLocators.CREATE_ORDER_BUTTON))
-        order_button.click()
-
-        # 4. Ждём номер заказа
+    # ====== ЗАКАЗЫ ======
+    
+    def wait_order_id(self):
+        """Ожидает появления номера заказа"""
         order_id_element = self.wait.until(
-            EC.visibility_of_element_located((By.XPATH, "//*[contains(@class, 'Modal_modal__')]//*[contains(@class, 'text_type_digits-large')]"))
+            EC.visibility_of_element_located(MainPageLocators.ORDER_ID)
         )
-        WebDriverWait(self.driver, 30).until(
+        self.wait.until(
             lambda d: order_id_element.text != "9999"
         )
+        return order_id_element.text
 
-        # 5. Закрываем модальное окно
+    def close_order_modal(self):
+        """Закрывает модальное окно заказа"""
         close_button = self.wait.until(EC.element_to_be_clickable(MainPageLocators.CLOSE_MODAL_ORDER))
         close_button.click()
+        time.sleep(1)
+
+    def create_order(self):
+        """Создаёт заказ (перетаскиваем булку и соус)"""
+        self.add_filling_to_order()
+        self.add_ingredient_to_order()
+        
+        order_button = self.wait.until(EC.element_to_be_clickable(MainPageLocators.CREATE_ORDER_BUTTON))
+        order_button.click()
+        
+        order_id = self.wait_order_id()
+        self.close_order_modal()
+        return order_id
+
+    def refresh_and_wait_orders(self):
+        """Обновляет страницу и ждет загрузки заказов"""
+        self.driver.refresh()
+        self.wait.until(EC.visibility_of_element_located(MainPageLocators.ORDERS_LIST_TITLE))
         time.sleep(1)

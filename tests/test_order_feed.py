@@ -1,7 +1,6 @@
 import allure
 from pages.main_page import MainPage
 from pages.order_feed_page import OrderFeedPage
-from selenium.webdriver.support.ui import WebDriverWait
 
 
 @allure.suite("Лента заказов")
@@ -12,23 +11,17 @@ class TestOrderFeed:
         driver = auth_driver
         main_page = MainPage(driver)
 
-        # 1. Переходим в ленту заказов
         main_page.click_order_feed()
         order_feed_page = OrderFeedPage(driver)
         counter_before = order_feed_page.get_completed_orders_all_time()
 
-        # 2. Переходим в конструктор и создаём заказ
         main_page.click_constructor()
         main_page.create_order()
 
-        # 3. Снова переходим в ленту заказов
         main_page.click_order_feed()
-        driver.refresh()
+        main_page.refresh_and_wait_orders()  # ✅ Используем метод page object
 
-        WebDriverWait(driver, 20).until(
-            lambda d: order_feed_page.get_completed_orders_all_time() > counter_before
-        )
-
+        order_feed_page.wait_counter_increases_all_time(counter_before)  # ✅ Используем метод page object
         counter_after = order_feed_page.get_completed_orders_all_time()
         assert counter_after > counter_before
 
@@ -45,12 +38,9 @@ class TestOrderFeed:
         main_page.create_order()
 
         main_page.click_order_feed()
-        driver.refresh()
+        main_page.refresh_and_wait_orders()  # ✅ Используем метод page object
 
-        WebDriverWait(driver, 20).until(
-            lambda d: order_feed_page.get_completed_orders_today() > counter_before
-        )
-
+        order_feed_page.wait_counter_increases_today(counter_before)  # ✅ Используем метод page object
         counter_after = order_feed_page.get_completed_orders_today()
         assert counter_after > counter_before
 
@@ -64,8 +54,9 @@ class TestOrderFeed:
         main_page.create_order()
 
         main_page.click_order_feed()
-        driver.refresh()
+        main_page.refresh_and_wait_orders()  # ✅ Используем метод page object
 
         order_feed_page = OrderFeedPage(driver)
         orders = order_feed_page.get_orders_in_progress()
         assert isinstance(orders, list)
+        assert len(orders) > 0
